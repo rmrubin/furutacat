@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+gpio export 23 out
+gpio export 24 in
+gpio export 25 out
+echo "pins 23 and 25 exported as output"
+echo "pin 24 exported as input"
+

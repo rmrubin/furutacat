@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+gpio -g mode 23 out
+gpio -g write 23 1
+echo "GPIO:BCM23 = 1"
+echo "!!! WARNING !!!"
+echo "FuturaCat motor drive enabled."
+
