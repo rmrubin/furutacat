@@ -23,19 +23,31 @@ int32_t square      = 0;
 int32_t integral    = 0;
 int16_t derivative  = 0;
 
-// motor pwm, dir, and estop status
-int32_t pwm       = 0;
+// motor pwm
+int32_t  pwm      = 0;
+
+// bools
 uint32_t dir      = 0;
 uint32_t run      = 0;
 uint32_t relay    = 0;
 uint32_t range    = 0;
 uint32_t horizon  = 0;
 uint32_t button		= 0;
+
 // battery adc value
 float battery = 0;
 
+// floating point variable mirrors
+float f_target      = 0;
+float f_current     = 0;
+float f_error       = 0;
+float f_previous    = 0;
+float f_square      = 0;
+float f_integral    = 0;
+float f_derivative  = 0;
+float f_pwm         = 0;
 
-
+// buffers
 uint8_t vars[VAR_PACKET_BYTES] = {0};
 uint8_t logpak[LOG_PACKET_BYTES] = {0};
 
@@ -227,124 +239,87 @@ void print_vars(int *uart)
 
 	unpack_vars();
 
-  printf("  Kp:         ");
+  printf("  Kp:             ");
   printf("%d\n", kp);
 
-  printf("  Ks:         ");
+  printf("  Ks:             ");
   printf("%d\n", ks);
 
-  printf("  Ki:         ");
+  printf("  Ki:             ");
   printf("%d\n", ki);
   
-  printf("  Kd:         ");
+  printf("  Kd:             ");
   printf("%d\n", kd);
 
-  printf("  target:     ");
-  printf("%d\n", target);
+  printf("  target[º]:      ");
+  printf("%0.1f\n", f_target);
 
   printf("\n");
 
-  printf("  current:    ");
-  printf("%d\n", current);
+  printf("  current[º]:     ");
+  printf("%.1f\n", f_current);
 
-  printf("  error:      ");
-  printf("%d\n", error);
+  printf("  error[º]:       ");
+  printf("%.1f\n", f_error);
 
-  printf("  integral:   ");
-  printf("%d\n", integral);
+  printf("  integral[º*s]:  ");
+  printf("%.1f\n", f_integral);
 
-  printf("  derivative: ");
-  printf("%d\n", derivative);
-
-  printf("\n");
-
-  printf("  pwm:        ");
-  printf("%d\n", pwm);
+  printf("  diff[º/s]:      ");
+  printf("%.1f\n", f_derivative);
 
   printf("\n");
 
-  printf("  run:        ");
+  printf("  pwm[%]:         ");
+  printf("%.2f\n", f_pwm);
+
+  printf("\n");
+
+  printf("  run:            ");
   printf("%d\n", run);
 
-  printf("  button      ");
+  printf("  button          ");
   printf("%d\n", button);
 
-  printf("  relay:      ");
+  printf("  relay:          ");
   printf("%d\n", relay);
 
-  printf("  range:      ");
+  printf("  range:          ");
   printf("%d\n", range);
 
-  printf("  horizon:    ");
+  printf("  horizon:        ");
   printf("%d\n", horizon);
   
   printf("\n");
 
-  printf("  battery:    ");
-  printf("%f\n", battery);
+  printf("  battery[V]:     ");
+  printf("%.2f\n", battery);
 }
+
+
 
 void unpack_vars(void)
 {
-/*
-  kp = (vars[0] << 8);
-  kp += vars[1];
-
-  ks = (vars[2] << 8);
-  ks += vars[3];
-
-  ki = (vars[4] << 8);
-  ki += vars[5];
-
-  kd = (vars[6] << 8);
-  kd += vars[7];
+  static uint16_t tmp;
   
-	target = (vars[8] << 8);
-  target += vars[9];
-
-  current = (vars[10] << 8);
-  current += vars[11];
-
-  error = (vars[12] << 8);
-  error += vars[13];
-
-  integral = (vars[14] << 24);
-  integral += (vars[15] << 16);
-  integral += (vars[16] << 8);
-  integral += vars[17];
-
-  derivative = (vars[18] << 8);
-  derivative += vars[19];
- 
-  pwm = (vars[20] << 8);
-  pwm += vars[21];
-
-  uint32_t tmp;
-  tmp = (vars[22] << 8);
-  tmp += vars[23];
-  battery = tmp * BATTERY_CONV_K;
-
-	
-
-  if (vars[24] & (1 << 0))  dir= 1;
-  else 
-  {
-    pwm *= -1;
-    dir = 0;
-  }
-
-*/
-
   unpack_2B_to_uint16(&vars[0], &vars[1], &kp);
   unpack_2B_to_uint16(&vars[2], &vars[3], &ks);
   unpack_2B_to_uint16(&vars[4], &vars[5], &ki);
   unpack_2B_to_uint16(&vars[6], &vars[7], &kd);
   unpack_2B_to_uint16(&vars[8], &vars[9], &target);
+  uint16_to_deg(&target, &f_target);
   unpack_2B_to_uint16(&vars[10], &vars[11], &current);
+  uint16_to_deg(&current, &f_current);
   unpack_2B_to_int16(&vars[12], &vars[13], &error);
+  int16_to_deg(&error, &f_error);
   unpack_4B_to_int32(&vars[14], &vars[15], &vars[16], &vars[17], &integral);
+  int32_to_deg(&integral, &f_integral);
   unpack_2B_to_int16(&vars[18], &vars[19], &derivative);
+  int16_to_deg(&derivative, &f_derivative);
   unpack_2B_to_int32(&vars[20], &vars[21], &pwm);
+
+  f_integral *= INTEGRAL_CONV_K;
+  f_derivative *= DERIVATIVE_CONV_K;
 
   if (vars[24] & (1 << 0))  dir= 1;
   else
@@ -353,7 +328,7 @@ void unpack_vars(void)
     dir = 0;
   }
 
-	static uint16_t tmp;
+  int32_to_percent_pwm(&pwm, &f_pwm);
 
   unpack_2B_to_uint16(&vars[22], &vars[23], &tmp);
   
@@ -380,7 +355,9 @@ void unpack_vars(void)
 void unpack_log(void)
 {
   unpack_2B_to_uint16(&logpak[0], &logpak[1], &current);
+  uint16_to_deg(&current, &f_current);
   unpack_2B_to_int32(&logpak[2], &logpak[3], &pwm);
+  int32_to_percent_pwm(&pwm, &f_pwm); 
 }
 
 
@@ -447,12 +424,42 @@ void unpack_4B_to_int32(uint8_t* high, uint8_t* hmid, uint8_t* lmid, uint8_t* lo
 
 
 
+void int16_to_deg(int16_t* in, float* degrees)
+{
+  *degrees = *in * DEGREE_CONV_K;
+}
+
+
+
+void uint16_to_deg(uint16_t* in , float* degrees)
+{
+  *degrees = *in * DEGREE_CONV_K;
+}
+
+
+
+void int32_to_deg(int32_t* in , float* degrees)
+{
+  *degrees = *in * DEGREE_CONV_K;
+}
+
+
+
+void int32_to_percent_pwm(int32_t* in, float* percent_pwm)
+{
+    *percent_pwm = *in * PERCENT_PWM_CONV_K;
+}
+
+
+
 void edit_var(int* uart, char var_ch, char* msg, uint16_t min, uint16_t max)
 {
   printf("\n");
 
   uint16_t tmp = getnum(msg, min, max);
-  
+ 
+  if(var_ch = 't') tmp = (uint16_t)round((double)(tmp * BIN_DEG_CONV_K));
+ 
   uint8_t tmpb[3] = {var_ch};
   tmpb[1] = (uint8_t) (tmp >> 8);
   tmpb[2] = (uint8_t) (tmp &= 0x00FF);
@@ -480,7 +487,7 @@ void start_monitor(int* uart)
   {
     system("clear");
     print_vars(uart);
-    usleep(50000);
+    usleep(200000);
   }
 }
 
@@ -554,7 +561,7 @@ void start_logging(int* uart)
   strcat(filename,ext_dat);
 
   fout = fopen(filename,"w");
-  fprintf(fout, "# Kp=%i Ki=%i Kd=%i target=%i run=%i relay=%i battery=%f\n", kp, ki, kd, target, run, relay, battery);
+  fprintf(fout, "# Kp=%i Ki=%i Kd=%i target=%.1f run=%i relay=%i battery=%.2f\n", kp, ki, kd, f_target, run, relay, battery);
   fprintf(fout, "# time target current pwm\n");
   float period = (1.0/SAMPLE_RATE_HZ);
 
@@ -562,7 +569,7 @@ void start_logging(int* uart)
   {
     for(int j = 0; j < LOG_PACKET_BYTES; ++j) logpak[j] = fgetc(fin);
     unpack_log();
-    fprintf(fout, "%f %i %i %i\n", (i * period), target, current, pwm);
+    fprintf(fout, "%.4f %.1f %.1f %f\n", (i * period), f_target, f_current, f_pwm);
   }
   
   fclose(fin);
