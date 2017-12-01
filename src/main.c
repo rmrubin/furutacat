@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 
       case 't':
       case 'T':
-        edit_var(&uart, 't', PROMPT_TARGET, 0, 4095);
+        edit_var(&uart, 't', PROMPT_TARGET, 0, 360);
         break;
 
       case 'v':
