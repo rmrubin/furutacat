@@ -7,7 +7,7 @@
 #define DATE            "2017-11-30"
 #define WRITER          "randy rubin for MECA482, California State University, Chico"
 
-#define PROMPT_TEXT     "FCAT: enter a command, type h for help"
+#define PROMPT_TEXT     "FCAT: enter a command, ! to init gpio after reboot, h for help"
 #define PROMPT_CLI      "? "
 #define PROMPT_NUM      "# "
 
@@ -27,7 +27,7 @@
 #define PROMPT_KS       "FCAT: enter new squared gain, Ks, 0-65355"
 #define PROMPT_KI       "FCAT: enter new integral gain, Ki, 0-65355"
 #define PROMPT_KD       "FCAT: enter new differential gain, Kd"
-#define PROMPT_TARGET   "FCAT: enter new target angle, 0-4095, 2048 is up"
+#define PROMPT_TARGET   "FCAT: enter new target angle, 0-360, 180 is up"
 
 #define RELAY_CLOSED    "ACK: !!! relay CLOSED, motor POWERED"
 #define RELAY_OPEN      "ACK: relay open, motor unpowered"
