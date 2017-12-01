@@ -458,7 +458,7 @@ void edit_var(int* uart, char var_ch, char* msg, uint16_t min, uint16_t max)
 
   uint16_t tmp = getnum(msg, min, max);
  
-  if(var_ch = 't') 
+  if(var_ch == 't') 
   {
     tmp = (uint16_t)round((double)(tmp * BIN_DEG_CONV_K));
     if (tmp > 4095) tmp = 4095;
