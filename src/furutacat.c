@@ -458,7 +458,11 @@ void edit_var(int* uart, char var_ch, char* msg, uint16_t min, uint16_t max)
 
   uint16_t tmp = getnum(msg, min, max);
  
-  if(var_ch = 't') tmp = (uint16_t)round((double)(tmp * BIN_DEG_CONV_K));
+  if(var_ch = 't') 
+  {
+    tmp = (uint16_t)round((double)(tmp * BIN_DEG_CONV_K));
+    if (tmp > 360) tmp = 360;
+  }
  
   uint8_t tmpb[3] = {var_ch};
   tmpb[1] = (uint8_t) (tmp >> 8);
