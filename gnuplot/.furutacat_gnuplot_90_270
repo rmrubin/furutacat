@@ -14,8 +14,8 @@ set xlabel "Time ( s )"
 set ylabel "Angle ( Degrees, TDC = 180 )"
 set y2label "Motor PWM ( %FS )"
 set ytics nomirror
-set ytics 150,15,210
-set yrange [150:210]
+set ytics 90,45,270
+set yrange [90:270]
 set y2tics -100,25,100
 set y2range [-100:100]
 set grid x y2 lc rgb "#aaaaaa"
