@@ -30,7 +30,7 @@ uint32_t run      = 0;
 uint32_t relay    = 0;
 uint32_t range    = 0;
 uint32_t horizon  = 0;
-uint32_t button		= 0;
+uint32_t button	  = 0;
 // battery adc value
 float battery = 0;
 
@@ -179,10 +179,10 @@ char inb[CLI_BUFFER_SIZE] = {0};
 
 char get_option(void)
 {
-	printf("\n  %s", PROMPT_CLI);
+  printf("\n  %s", PROMPT_CLI);
 	
-	fgets(inb, CLI_BUFFER_SIZE, stdin);
-	return (inb[0]);
+  fgets(inb, CLI_BUFFER_SIZE, stdin);
+  return (inb[0]);
 }
 
 
@@ -286,55 +286,6 @@ void print_vars(int *uart)
 
 void unpack_vars(void)
 {
-/*
-  kp = (vars[0] << 8);
-  kp += vars[1];
-
-  ks = (vars[2] << 8);
-  ks += vars[3];
-
-  ki = (vars[4] << 8);
-  ki += vars[5];
-
-  kd = (vars[6] << 8);
-  kd += vars[7];
-  
-	target = (vars[8] << 8);
-  target += vars[9];
-
-  current = (vars[10] << 8);
-  current += vars[11];
-
-  error = (vars[12] << 8);
-  error += vars[13];
-
-  integral = (vars[14] << 24);
-  integral += (vars[15] << 16);
-  integral += (vars[16] << 8);
-  integral += vars[17];
-
-  derivative = (vars[18] << 8);
-  derivative += vars[19];
- 
-  pwm = (vars[20] << 8);
-  pwm += vars[21];
-
-  uint32_t tmp;
-  tmp = (vars[22] << 8);
-  tmp += vars[23];
-  battery = tmp * BATTERY_CONV_K;
-
-	
-
-  if (vars[24] & (1 << 0))  dir= 1;
-  else 
-  {
-    pwm *= -1;
-    dir = 0;
-  }
-
-*/
-
   unpack_2B_to_uint16(&vars[0], &vars[1], &kp);
   unpack_2B_to_uint16(&vars[2], &vars[3], &ks);
   unpack_2B_to_uint16(&vars[4], &vars[5], &ki);
@@ -353,11 +304,11 @@ void unpack_vars(void)
     dir = 0;
   }
 
-	static uint16_t tmp;
+  static uint16_t tmp;
 
   unpack_2B_to_uint16(&vars[22], &vars[23], &tmp);
   
-	battery = tmp * BATTERY_CONV_K;
+  battery = tmp * BATTERY_CONV_K;
 
   if (vars[24] & (1 << 1)) run = 1;
   else run = 0;
@@ -505,7 +456,7 @@ void start_logging(int* uart)
   strftime(date_prefix,DATE_PREFIX_SIZE,DATE_FORMAT,timeinfo);
   
   strcpy(filename,dir);
-	strcat(filename,date_prefix);
+  strcat(filename,date_prefix);
   strcat(filename,ext_bin);
  
   fout = fopen(filename,"wb");
@@ -608,20 +559,20 @@ uint16_t getnum(char* msg, uint16_t min, uint16_t max)
 
 void pwm_enable(void)
 {
-	printf("\n");
+  printf("\n");
 
-	digitalWrite(PIN_RUN,1);
-	print_msg(PWM_ENABLE);
+  digitalWrite(PIN_RUN,1);
+  print_msg(PWM_ENABLE);
 }
 
 
 
 void pwm_disable()
 {
-	printf("\n");
-
-	digitalWrite(PIN_RUN,0);
-	print_msg(PWM_DISABLE);
+  printf("\n");
+  
+  digitalWrite(PIN_RUN,0);
+  print_msg(PWM_DISABLE);
 }
 
 
